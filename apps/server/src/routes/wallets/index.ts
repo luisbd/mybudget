@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { StatusCodes, ReasonPhrases } from 'http-status-codes'
+import { StatusCodes } from 'http-status-codes'
 import * as yup from 'yup'
 
 import { CurrencyCode, Money } from '@mybudget/types'
@@ -30,7 +30,7 @@ const createWalletSchema = yup.object().shape({
   initialBalance: yup.number().integer().optional().default(0)
 })
 
-router.post('/', async function walletsPostHandler(req, res) {
+router.post('/', async function walletsPostHandler(req, res, next) {
   try {
     const validPayload = await createWalletSchema.validate(req.body)
 
@@ -41,11 +41,7 @@ router.post('/', async function walletsPostHandler(req, res) {
 
     res.status(StatusCodes.ACCEPTED).json({ data })
   } catch (error) {
-    if (error instanceof yup.ValidationError) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: error.message })
-    }
-
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: ReasonPhrases.INTERNAL_SERVER_ERROR })
+    next(error)
   }
 })
 

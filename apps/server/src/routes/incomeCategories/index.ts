@@ -26,7 +26,7 @@ const createIncomeCategorySchema = yup.object().shape({
   name: yup.string().required()
 })
 
-router.post('/', async function incomeCategoriesPostHandler(req, res) {
+router.post('/', async function incomeCategoriesPostHandler(req, res, next) {
   try {
     const validPayload = await createIncomeCategorySchema.validate(req.body)
     const parent = validPayload.parentId ? await req.repository.getIncomeCategoryById(validPayload.parentId) : null
@@ -37,12 +37,8 @@ router.post('/', async function incomeCategoriesPostHandler(req, res) {
     })
 
     return res.status(StatusCodes.ACCEPTED).json({ data })
-  } catch (e) {
-    if (e instanceof Error) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: e.message })
-    }
-
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: ReasonPhrases.INTERNAL_SERVER_ERROR })
+  } catch (error) {
+    next(error)
   }
 })
 

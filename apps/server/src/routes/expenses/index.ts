@@ -30,7 +30,7 @@ const createExpenseSchema = yup.object().shape({
   transactionDate: yup.date().optional().default(() => new Date())
 })
 
-router.post('/', async function expensesPostHandler(req, res) {
+router.post('/', async function expensesPostHandler(req, res, next) {
   try {
     const validPayload = await createExpenseSchema.validate(req.body)
     const wallet = await req.repository.getWalletById(validPayload.walletId)
@@ -44,12 +44,8 @@ router.post('/', async function expensesPostHandler(req, res) {
     })
 
     return res.status(StatusCodes.ACCEPTED).json({ data })
-  } catch (e) {
-    if (e instanceof Error) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: e.message })
-    }
-
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: ReasonPhrases.INTERNAL_SERVER_ERROR })
+  } catch (error) {
+    next(error)
   }
 })
 

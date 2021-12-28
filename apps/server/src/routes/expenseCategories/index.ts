@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { StatusCodes, ReasonPhrases } from 'http-status-codes'
+import { StatusCodes } from 'http-status-codes'
 import * as yup from 'yup'
 
 /**
@@ -26,7 +26,7 @@ const createExpenseCategorySchema = yup.object().shape({
   name: yup.string().required()
 })
 
-router.post('/', async function expenseCategoriesPostHandler(req, res) {
+router.post('/', async function expenseCategoriesPostHandler(req, res, next) {
   try {
     const validPayload = await createExpenseCategorySchema.validate(req.body)
     const parent = validPayload.parentId ? await req.repository.getExpenseCategoryById(validPayload.parentId) : null
@@ -37,12 +37,8 @@ router.post('/', async function expenseCategoriesPostHandler(req, res) {
     })
 
     return res.status(StatusCodes.ACCEPTED).json({ data })
-  } catch (e) {
-    if (e instanceof Error) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: e.message })
-    }
-
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: ReasonPhrases.INTERNAL_SERVER_ERROR })
+  } catch (error) {
+    next(error)
   }
 })
 

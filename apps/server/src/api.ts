@@ -8,7 +8,7 @@ import expenses from './routes/expenses'
 import expenseCategories from './routes/expenseCategories'
 import dashboard from './routes/dashboard'
 
-import { repositoryMiddleware } from './middlewares'
+import { repositoryMiddleware, globalErrorHandler } from './middlewares'
 
 const router = Router()
 
@@ -22,9 +22,6 @@ router.use('/expenses', expenses)
 router.use('/expense-categories', expenseCategories)
 router.use('/dashboard', dashboard) // 1 dashboard per user, so singular
 
-/**
- * @todo
- * Global error handler as middleware
- */
+router.use(globalErrorHandler)
 
 export default router
